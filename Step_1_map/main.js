@@ -5,7 +5,16 @@ require([
   "esri/layers/FeatureLayer",
   "esri/widgets/Legend",
   "esri/widgets/Expand",
-], function (esriConfig, Map, MapView, FeatureLayer, Legend, Expand) {
+  "esri/widgets/FeatureTable",
+], function (
+  esriConfig,
+  Map,
+  MapView,
+  FeatureLayer,
+  Legend,
+  Expand,
+  FeatureTable
+) {
   esriConfig.apiKey =
     "AAPK0dc236a37148458583b633e74790fb25s2jkA3Luv6rWUCl8U_PsMln5w_yQvw8xhRDVI95xThChjH1Tp8hCcDZZmF1e6kCB";
 
@@ -63,7 +72,7 @@ require([
         label: "Accessories & Clothing",
         symbol: {
           type: "simple-marker",
-          color: "d9351a",
+          color: "#d9351a",
           size: "10px",
         },
       },
@@ -157,12 +166,22 @@ require([
           size: "10px",
         },
       },
+      // {
+      //   value: "other",
+      //   label: "Other",
+      //   symbol: {
+      //     type: "simple-marker",
+      //     color: "d9351a",
+      //     size: "10px",
+      //   },
+      // },
     ],
   };
 
   // Initializing FeatureLayer
   const featureLayer = new FeatureLayer({
     title: "Black-owned Businesses",
+    // url is data
     url: url,
     copyright: "BGMAPP",
     popupTemplate: template,
@@ -170,9 +189,10 @@ require([
   });
 
   const map = new Map({
-    // basemap: "arcgis-topographic", // Basemap layer service
-    basemap: "dark-gray", // Basemap layer service
-    layers: [featureLayer], //add the layer to the map
+    // Basemap layer service
+    basemap: "arcgis-topographic", 
+    // Add the layer to the map
+    layers: [featureLayer], 
   });
 
   const view = new MapView({
@@ -199,40 +219,115 @@ require([
     content: document.getElementById("legendDiv"),
     expanded: true,
   });
+
+
+
   // Setting up client-side filtering
   view.whenLayerView(featureLayer).then((layerView) => {
     const field = "Industry";
 
+    // fires every time a different option is selected from dropdown
     const filterSelect = document.getElementById("filter");
 
     filterSelect.addEventListener("input", (event) => {
       let filterExpression;
+
+      // the "all" option
       if (event.target.value === "1=1") {
         filterExpression = event.target.value;
-      } else if (event.target.value === "other") {
-        filterExpression = generateOtherSQLString(field);
+
+      //   // show all features with all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
+      // } else if (event.target.value === "other") {
+      //   filterExpression = generateOtherSQLString(field);
+        
+        //filter by selected industry
       } else {
         filterExpression = `${field}='${event.target.value}'`;
       }
 
-      //apply the filter on the client-side layerView
-      //no request will be sent out to the feature service for this
+      // apply the filter on the client-side layerView
       layerView.filter = {
         where: filterExpression,
       };
     });
   });
 
-  function generateOtherSQLString(field) {
-    let sqlString = "";
-    uvrRenderer.uniqueValueInfos.forEach((valueInfo) => {
-      sqlString += `${field} <> '${valueInfo.value}' AND `;
+  // generates a SQL string for all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
+  // function generateOtherSQLString(field) {
+  //   let sqlString = "";
+
+  //   //loop through and exclude all of these industries
+  //   uvrRenderer.uniqueValueInfos.forEach((valueInfo) => {
+  //     sqlString += `${field} <> '${valueInfo.value}' AND `;
+  //   });
+
+  //   // cut out the last `AND` string from the final sql string since the loop above adds one at the end
+  //   let lastStrIndex = sqlString.lastIndexOf(`AND`);
+  //   sqlString = sqlString.substring(0, lastStrIndex);
+  //   return sqlString;
+  // }
+
+  // TODO Add the feature table widget
+  view.when(() => {
+    //create the feature table
+    const featureTable = new FeatureTable({
+      // required for feature highlight to work
+      view: view,
+      layer: featureLayer,
+      // these are the fields that will display as columns
+      fieldConfigs: [
+        {
+          name: "Name",
+          label: "Business Name",
+          direction: "asc",
+        },
+        {
+          name: "Address",
+          label: "Address",
+        },
+        {
+          name: "Website",
+          label: "Website",
+        },
+        {
+          name: "Industry",
+          label: "Industry",
+        },
+        {
+          name: "Phone",
+          label: "Phone number",
+        },
+      ],
+      //saying where you want it to be displayed
+      container: document.getElementById("tableDiv"),
     });
+    // query for the selected features and zoom to them
+    // featureTable.on("selection-change", zoomToSelectFeatures);
+  });
 
-    let lastStrIndex = sqlString.lastIndexOf(`AND`);
-    sqlString = sqlString.substring(0, lastStrIndex);
-
-    return sqlString;
-  }
+  // // this function zooms into the selected features features based off the records selected or deselected from the FeatureTable
+  // function zoomToSelectFeatures(event) {
+  //   //check if rom is selcted or deselected
+  //   if (event.added.length > 0) {
+  //     //row was selected
+  //     currentSelectedOIDs.push(event.added[0].objectId);
+  //   } else {
+  //     //row was deselected
+  //     // remove the objectId from the currentSelectedOIds
+  //     event.removed.forEach((feature, index) => {
+  //       let deleteIndex = currentSelectedOIDs.indexOf(
+  //         event.removed[index].objectId
+  //       );
+  //       currentSelectedOIDs.splice(deleteIndex, 1);
+  //     });
+  //   }
+  //   // only perform the query and zoom to the extent if the currentSelectedOIDs is greater than 0
+  //   if (currentSelectedOIDs.length > 0) {
+  //     const query = featureLayer.createQuery();
+  //     query.objectIds = currentSelectedOIDs;
+  //     query.returnGeometry = true;
+  //   }
+  // }
+  view.ui.add(expand, "bottom-right");
   view.ui.add(expand, "top-right");
 });
