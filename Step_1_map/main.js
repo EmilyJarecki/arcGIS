@@ -3,7 +3,9 @@ require([
   "esri/Map",
   "esri/views/MapView",
   "esri/layers/FeatureLayer",
-], function (esriConfig, Map, MapView, FeatureLayer) {
+  "esri/widgets/Legend",
+  "esri/widgets/Expand",
+], function (esriConfig, Map, MapView, FeatureLayer, Legend, Expand) {
   esriConfig.apiKey =
     "AAPK0dc236a37148458583b633e74790fb25s2jkA3Luv6rWUCl8U_PsMln5w_yQvw8xhRDVI95xThChjH1Tp8hCcDZZmF1e6kCB";
 
@@ -43,7 +45,7 @@ const template = {
     title: "Black-owned Businesses",
     url: url,
     copyright: "BGMAPP",
-    popupTemplate: template //pass the popup
+    popupTemplate: template
   });
 
   const map = new Map({
@@ -65,4 +67,18 @@ const template = {
     // zoom: 12, // Zoom level
     container: "viewDiv", // Div element
   });
+
+
+  const legend = new Legend ({
+    view: view,
+    container: "legendDiv"
+  })
+
+  const expand = new Expand({
+    view: view,
+    content: document.getElementById("legendDiv"),
+    expanded: true
+  })
+
+  view.ui.add(expand, "top-right")
 });
