@@ -190,9 +190,9 @@ require([
 
   const map = new Map({
     // Basemap layer service
-    basemap: "arcgis-topographic", 
+    basemap: "arcgis-topographic",
     // Add the layer to the map
-    layers: [featureLayer], 
+    layers: [featureLayer],
   });
 
   const view = new MapView({
@@ -204,9 +204,8 @@ require([
       spatialReference: 4326,
     },
     map: map,
-    // center: [-118.805, 34.027], // Longitude, latitude
-    // zoom: 12, // Zoom level
-    container: "viewDiv", // Div element
+    // div element
+    container: "viewDiv", 
   });
 
   const legend = new Legend({
@@ -219,8 +218,6 @@ require([
     content: document.getElementById("legendDiv"),
     expanded: true,
   });
-
-
 
   // Setting up client-side filtering
   view.whenLayerView(featureLayer).then((layerView) => {
@@ -236,10 +233,10 @@ require([
       if (event.target.value === "1=1") {
         filterExpression = event.target.value;
 
-      //   // show all features with all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
-      // } else if (event.target.value === "other") {
-      //   filterExpression = generateOtherSQLString(field);
-        
+        //   // show all features with all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
+        // } else if (event.target.value === "other") {
+        //   filterExpression = generateOtherSQLString(field);
+
         //filter by selected industry
       } else {
         filterExpression = `${field}='${event.target.value}'`;
@@ -267,9 +264,8 @@ require([
   //   return sqlString;
   // }
 
-  // TODO Add the feature table widget
   view.when(() => {
-    //create the feature table
+    // create the feature table
     const featureTable = new FeatureTable({
       // required for feature highlight to work
       view: view,
@@ -298,36 +294,9 @@ require([
           label: "Phone number",
         },
       ],
-      //saying where you want it to be displayed
       container: document.getElementById("tableDiv"),
     });
-    // query for the selected features and zoom to them
-    // featureTable.on("selection-change", zoomToSelectFeatures);
   });
 
-  // // this function zooms into the selected features features based off the records selected or deselected from the FeatureTable
-  // function zoomToSelectFeatures(event) {
-  //   //check if rom is selcted or deselected
-  //   if (event.added.length > 0) {
-  //     //row was selected
-  //     currentSelectedOIDs.push(event.added[0].objectId);
-  //   } else {
-  //     //row was deselected
-  //     // remove the objectId from the currentSelectedOIds
-  //     event.removed.forEach((feature, index) => {
-  //       let deleteIndex = currentSelectedOIDs.indexOf(
-  //         event.removed[index].objectId
-  //       );
-  //       currentSelectedOIDs.splice(deleteIndex, 1);
-  //     });
-  //   }
-  //   // only perform the query and zoom to the extent if the currentSelectedOIDs is greater than 0
-  //   if (currentSelectedOIDs.length > 0) {
-  //     const query = featureLayer.createQuery();
-  //     query.objectIds = currentSelectedOIDs;
-  //     query.returnGeometry = true;
-  //   }
-  // }
-  view.ui.add(expand, "bottom-right");
   view.ui.add(expand, "top-right");
 });
