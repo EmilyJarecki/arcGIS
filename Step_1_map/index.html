@@ -1,18 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Black Owned Business Tracker</title>
-    <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css">
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+    />
     <script src="https://js.arcgis.com/4.26/"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="main.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="viewDiv"></div>
-    <div id="legendDiv"></div>
-
-</body>
+    <div id="legendDiv" class="esri-widget">
+      <h3>
+        Data provided by <a href="https://bgmapp.org/">Black Girls M.A.P.P.</a>
+      </h3>
+      <h4>Filter by Industry:</h4>
+      <select id="filter" class="esri-select">
+        <option value="1=1">All</option>
+        <option value="accessories_&_clothing">Accessories & Clothing</option>
+        <option value="arts_&_culture">Arts & Culture</option>
+        <option value="auto">Auto</option>
+        <option value="food_+_beverage">Food + Beverage</option>
+        <option value="hair_body_&_beauty">Hair, Body & Beauty</option>
+        <option value="health_&_medicine">Health & Medicine</option>
+        <option value="it_&_tech_hardware+software_">IT & Tech</option>
+        <option value="legal">Legal</option>
+        <option value="management">Management</option>
+        <option value="non_profit_organization">Non Profit Organization</option>
+        <option value="religious">Religious</option>
+        <option value="other">Other</option>
+      </select>
+      <br />
+      <div id="infoDiv"></div>
+    </div>
+  </body>
 </html>
