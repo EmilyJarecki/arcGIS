@@ -196,8 +196,6 @@ require([
   const map = new Map({
     // Basemap layer service
     basemap: "arcgis-topographic",
-    basemap: "arcgis-dark-gray",
-    // basemap: "arcgis-navigation", //Basemap layer service
 
     // Add the layer to the map
     layers: [featureLayer],
