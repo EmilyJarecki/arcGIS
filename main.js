@@ -6,6 +6,7 @@ require([
   "esri/widgets/Legend",
   "esri/widgets/Expand",
   "esri/widgets/FeatureTable",
+  "esri/widgets/Locate",
 ], function (
   esriConfig,
   Map,
@@ -13,7 +14,8 @@ require([
   FeatureLayer,
   Legend,
   Expand,
-  FeatureTable
+  FeatureTable,
+  Locate
 ) {
   esriConfig.apiKey =
     "AAPK0dc236a37148458583b633e74790fb25s2jkA3Luv6rWUCl8U_PsMln5w_yQvw8xhRDVI95xThChjH1Tp8hCcDZZmF1e6kCB";
@@ -249,21 +251,6 @@ require([
     });
   });
 
-  // generates a SQL string for all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
-  // function generateOtherSQLString(field) {
-  //   let sqlString = "";
-
-  //   //loop through and exclude all of these industries
-  //   uvrRenderer.uniqueValueInfos.forEach((valueInfo) => {
-  //     sqlString += `${field} <> '${valueInfo.value}' AND `;
-  //   });
-
-  //   // cut out the last `AND` string from the final sql string since the loop above adds one at the end
-  //   let lastStrIndex = sqlString.lastIndexOf(`AND`);
-  //   sqlString = sqlString.substring(0, lastStrIndex);
-  //   return sqlString;
-  // }
-
   view.when(() => {
     // create the feature table
     const featureTable = new FeatureTable({
@@ -297,6 +284,14 @@ require([
       container: document.getElementById("tableDiv"),
     });
   });
-
+  const locate = new Locate({
+    view: view,
+    useHeadingEnabled: false,
+    goToOverride: function(view, options) {
+      options.target.scale = 1500;
+      return view.goTo(options.target);
+    }
+  });
+  view.ui.add(locate, "top-left");
   view.ui.add(expand, "top-right");
 });
