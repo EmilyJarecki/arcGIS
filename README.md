@@ -15,6 +15,7 @@
     </ul>
   </li>
   <li>Allows for client-side filtering data based on type of industry.</li>
+  <li>Able to create routes and provide directions with the ArcGIS route service.</li>
 </ol>
 
 ## <a target="_blank" href="https://blackownedbusinessinlosangeles.netlify.app">🔗 Live Site</a>
