@@ -1,8 +1,8 @@
 # Black Owned Business Tracker
-<p>A web application that utilizes the ArcGIS API for JavaScript which tracks Black owned businesses in the Los Angeles area. 
-<p>Data courtesy of <a href="https://bgmapp.org/">Black Girls M.A.P.P.</a></p>
+## About
+<p>A web application that utilizes the ArcGIS API for JavaScript which tracks Black owned businesses in the Los Angeles area. Data courtesy of <a href="https://bgmapp.org/">Black Girls M.A.P.P.</a></p>
 
-### Features
+## Features
 <ol>
   <li>Developed a base map with an API key.</li>
   <li>Added feature layer as an operational layer on top of the base map.</li>
@@ -16,6 +16,8 @@
   </li>
   <li>Allows for client-side filtering data based on type of industry.</li>
 </ol>
+
+## <a target="_blank" href="https://blackownedbusinessinlosangeles.netlify.app">🔗 Live Site</a>
 <img width="1649" alt="Screen Shot 2023-05-28 at 6 47 13 PM" src="https://github.com/EmilyJarecki/arcGIS/assets/107048020/788a81c3-8ad2-474d-a5bb-ddd41b865fbc">
 
 <!-- ### Features to Implement 
