@@ -7,7 +7,7 @@
   <li>Developed a base map with an API key.</li>
   <li>Added feature layer as an operational layer on top of the base map.</li>
   <li>Provided user interaction with data in map via Popup which provides the business name, address, type of industry, and website information.</li>
-  <li>Included several types of widgets:<br>
+  <li>Included the following widgets:<br>
     <ul>
       <li>Legend</li>
       <li>Expand</li>
