@@ -7,6 +7,7 @@ require([
   "esri/widgets/Expand",
   "esri/widgets/FeatureTable",
   "esri/widgets/Locate",
+  "esri/widgets/Search",
 ], function (
   esriConfig,
   Map,
@@ -15,7 +16,8 @@ require([
   Legend,
   Expand,
   FeatureTable,
-  Locate
+  Locate,
+  Search
 ) {
   esriConfig.apiKey =
     "AAPK0dc236a37148458583b633e74790fb25s2jkA3Luv6rWUCl8U_PsMln5w_yQvw8xhRDVI95xThChjH1Tp8hCcDZZmF1e6kCB";
@@ -193,6 +195,7 @@ require([
   const map = new Map({
     // Basemap layer service
     basemap: "arcgis-topographic",
+    basemap: "arcgis-topographic",
     // Add the layer to the map
     layers: [featureLayer],
   });
@@ -292,6 +295,12 @@ require([
       return view.goTo(options.target);
     }
   });
+
+  const search = new Search({  //Add Search widget
+    view: view
+  });
+
+  view.ui.add(search, "top-right"); //Add to the map
   view.ui.add(locate, "top-left");
   view.ui.add(expand, "top-right");
 });
