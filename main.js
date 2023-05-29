@@ -170,15 +170,6 @@ require([
           size: "10px",
         },
       },
-      // {
-      //   value: "other",
-      //   label: "Other",
-      //   symbol: {
-      //     type: "simple-marker",
-      //     color: "d9351a",
-      //     size: "10px",
-      //   },
-      // },
     ],
   };
 
@@ -195,7 +186,8 @@ require([
   const map = new Map({
     // Basemap layer service
     basemap: "arcgis-topographic",
-    basemap: "arcgis-topographic",
+    basemap: "arcgis-dark-gray",
+
     // Add the layer to the map
     layers: [featureLayer],
   });
@@ -239,7 +231,7 @@ require([
         filterExpression = event.target.value;
 
         //   // show all features with all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
-        // } else if (event.target.value === "other") {
+        // } else if (event.target.value == "other") {
         //   filterExpression = generateOtherSQLString(field);
 
         //filter by selected industry
@@ -253,6 +245,16 @@ require([
       };
     });
   });
+
+  // function generateOtherSQLString(field){
+  //   let sqlString=''
+  //   uvrRenderer.uniqueValueInfos.forEach(valueInfo =>{
+  //     sqlString += `${field} <> '${valueInfo.value}' AND `
+  //   })
+  //   let lastStrIndex = sqlString.lastIndexOf(`AND`)
+  //   sqlString = sqlString.substring(0, lastStrIndex)
+  //   return sqlString
+  // }
 
   view.when(() => {
     // create the feature table
@@ -287,6 +289,7 @@ require([
       container: document.getElementById("tableDiv"),
     });
   });
+
   const locate = new Locate({
     view: view,
     useHeadingEnabled: false,
