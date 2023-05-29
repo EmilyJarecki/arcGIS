@@ -8,6 +8,10 @@ require([
   "esri/widgets/FeatureTable",
   "esri/widgets/Locate",
   "esri/widgets/Search",
+  "esri/Graphic",
+  "esri/rest/route",
+  "esri/rest/support/RouteParameters",
+  "esri/rest/support/FeatureSet",
 ], function (
   esriConfig,
   Map,
@@ -17,7 +21,11 @@ require([
   Expand,
   FeatureTable,
   Locate,
-  Search
+  Search,
+  Graphic,
+  route,
+  RouteParameters,
+  FeatureSet
 ) {
   esriConfig.apiKey =
     "AAPK0dc236a37148458583b633e74790fb25s2jkA3Luv6rWUCl8U_PsMln5w_yQvw8xhRDVI95xThChjH1Tp8hCcDZZmF1e6kCB";
@@ -25,6 +33,8 @@ require([
   const url =
     "https://services9.arcgis.com/q5uyFfTZo3LFL04P/arcgis/rest/services/survey123_0954ef4c3eb74d9989a91330c7740a9f/FeatureServer/0";
 
+  const routeUrl =
+    "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
   // Popup template
   const template = {
     title: "{Name}",
@@ -187,6 +197,7 @@ require([
     // Basemap layer service
     basemap: "arcgis-topographic",
     basemap: "arcgis-dark-gray",
+    // basemap: "arcgis-navigation", //Basemap layer service
 
     // Add the layer to the map
     layers: [featureLayer],
@@ -202,7 +213,9 @@ require([
     },
     map: map,
     // div element
-    container: "viewDiv", 
+    container: "viewDiv",
+    // center: [-118.24532, 34.05398], //Longitude, latitude
+    // zoom: 12,
   });
 
   const legend = new Legend({
@@ -293,15 +306,119 @@ require([
   const locate = new Locate({
     view: view,
     useHeadingEnabled: false,
-    goToOverride: function(view, options) {
+    goToOverride: function (view, options) {
       options.target.scale = 1500;
       return view.goTo(options.target);
+    },
+  });
+
+  const search = new Search({
+    //Add Search widget
+    view: view,
+  });
+
+  //Add a click handler to add graphics to the view.
+  view.on("click", function (event) {
+    //reference the addGraphic function
+    //The first click will create the origin
+    if (view.graphics.length === 0) {
+      addGraphic("origin", event.mapPoint);
+
+      //the second will create the destination
+    } else if (view.graphics.length === 1) {
+      addGraphic("destination", event.mapPoint);
+      // Call the route service
+      getRoute();
+      //Subsequent clicks will clear the graphics to define a new origin and destination
+    } else {
+      view.graphics.removeAll();
+      view.ui.empty("bottom-left");
+      addGraphic("origin", event.mapPoint);
     }
   });
 
-  const search = new Search({  //Add Search widget
-    view: view
-  });
+  //Create an addGraphic function to display a white marker for the origin location and a black marker for the destination.
+  function addGraphic(type, point) {
+    const graphic = new Graphic({
+      symbol: {
+        type: "simple-marker",
+        color: type === "origin" ? "white" : "black",
+        size: "8px",
+      },
+      geometry: point,
+    });
+    //Add the graphic to the view.
+    view.graphics.add(graphic);
+  }
+
+  //Create a getRoute function to add RouteParameters and pass in the point graphics.
+  function getRoute() {
+    const routeParams = new RouteParameters({
+      stops: new FeatureSet({
+        features: view.graphics.toArray(),
+      }),
+
+      returnDirections: true,
+    });
+
+    route
+      .solve(routeUrl, routeParams)
+      .then((data) => {
+        showRoutes(data.routeResults);
+        showDirections(data.routeResults[0].directions.features);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    function showRoutes(routes) {
+      routes.forEach((result) => {
+        result.route.symbol = {
+          type: "simple-line",
+          color: [5, 150, 255],
+          width: 3,
+        };
+        view.graphics.add(result.route, 0);
+      });
+    }
+
+    function showDirections(directions) {
+      function showRouteDirections(directions) {
+        const directionsList = document.createElement("ol");
+        directions.forEach((result, i) => {
+          const direction = document.createElement("li");
+          direction.innerHTML =
+            result.attributes.text +
+            (result.attributes.length > 0
+              ? " (" + result.attributes.length.toFixed(2) + " miles)"
+              : "");
+          directionsList.appendChild(direction);
+        });
+        directionsElement.appendChild(directionsList);
+      }
+
+      const directionsElement = document.createElement("div");
+      directionsElement.innerHTML = "<h3>Directions</h3>";
+      directionsElement.classList =
+        "esri-widget esri-widget--panel esri-directions__scroller directions";
+      directionsElement.style.marginTop = "0";
+      directionsElement.style.padding = "0 15px";
+      directionsElement.style.minHeight = "365px";
+
+      showRouteDirections(directions);
+
+      view.ui.empty("bottom-left");
+      view.ui.add(
+        new Expand({
+          view: view,
+          content: directionsElement,
+          expanded: true,
+          mode: "floating",
+        }),
+        "bottom-left"
+      );
+    }
+  }
 
   view.ui.add(search, "top-right"); //Add to the map
   view.ui.add(locate, "top-left");
