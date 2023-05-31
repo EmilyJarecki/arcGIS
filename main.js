@@ -27,6 +27,7 @@ require([
   RouteParameters,
   FeatureSet
 ) {
+
   esriConfig.apiKey =
     "AAPK0dc236a37148458583b633e74790fb25s2jkA3Luv6rWUCl8U_PsMln5w_yQvw8xhRDVI95xThChjH1Tp8hCcDZZmF1e6kCB";
 
@@ -35,6 +36,7 @@ require([
 
   const routeUrl =
     "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
+
   // Popup template
   const template = {
     title: "{Name}",
@@ -201,6 +203,7 @@ require([
     layers: [featureLayer],
   });
 
+  // Beginning view
   const view = new MapView({
     extent: {
       xmin: -118.98364392089809,
@@ -210,14 +213,15 @@ require([
       spatialReference: 4326,
     },
     map: map,
-    // div element
+
+    // Div element
     container: "viewDiv",
-    // center: [-118.24532, 34.05398], //Longitude, latitude
-    // zoom: 12,
   });
 
   const legend = new Legend({
     view: view,
+
+    // Div element
     container: "legendDiv",
   });
 
@@ -231,49 +235,38 @@ require([
   view.whenLayerView(featureLayer).then((layerView) => {
     const field = "Industry";
 
-    // fires every time a different option is selected from dropdown
+    // Fires every time a different option is selected from dropdown
     const filterSelect = document.getElementById("filter");
 
     filterSelect.addEventListener("input", (event) => {
       let filterExpression;
 
-      // the "all" option
+      // This is the "all" option
       if (event.target.value === "1=1") {
         filterExpression = event.target.value;
 
-        //   // show all features with all other industries not included in the UniqueValueRenderer.uniqueValuesInfo
-        // } else if (event.target.value == "other") {
-        //   filterExpression = generateOtherSQLString(field);
-
-        //filter by selected industry
+        // Filter by selected industry
       } else {
         filterExpression = `${field}='${event.target.value}'`;
       }
 
-      // apply the filter on the client-side layerView
+      // Apply the filter on the client-side layerView
       layerView.filter = {
         where: filterExpression,
       };
     });
   });
 
-  // function generateOtherSQLString(field){
-  //   let sqlString=''
-  //   uvrRenderer.uniqueValueInfos.forEach(valueInfo =>{
-  //     sqlString += `${field} <> '${valueInfo.value}' AND `
-  //   })
-  //   let lastStrIndex = sqlString.lastIndexOf(`AND`)
-  //   sqlString = sqlString.substring(0, lastStrIndex)
-  //   return sqlString
-  // }
-
   view.when(() => {
-    // create the feature table
+
+    // Create the feature table
     const featureTable = new FeatureTable({
-      // required for feature highlight to work
+
+      // Required for feature highlight to work
       view: view,
       layer: featureLayer,
-      // these are the fields that will display as columns
+
+      // These are the fields that will display as columns
       fieldConfigs: [
         {
           name: "Name",
@@ -297,6 +290,8 @@ require([
           label: "Phone number",
         },
       ],
+
+      // Div element
       container: document.getElementById("tableDiv"),
     });
   });
@@ -311,23 +306,27 @@ require([
   });
 
   const search = new Search({
-    //Add Search widget
+
+    // Add Search widget
     view: view,
   });
 
-  //Add a click handler to add graphics to the view.
+  // Add a click handler to add graphics to the view.
   view.on("click", function (event) {
-    //reference the addGraphic function
-    //The first click will create the origin
+
+    // Reference the addGraphic function
+    // The first click will create the origin
     if (view.graphics.length === 0) {
       addGraphic("origin", event.mapPoint);
 
-      //the second will create the destination
+      // The second click will create the destination
     } else if (view.graphics.length === 1) {
       addGraphic("destination", event.mapPoint);
+
       // Call the route service
       getRoute();
-      //Subsequent clicks will clear the graphics to define a new origin and destination
+
+      // Subsequent clicks will clear the graphics to define a new origin and destination
     } else {
       view.graphics.removeAll();
       view.ui.empty("bottom-left");
@@ -335,7 +334,7 @@ require([
     }
   });
 
-  //Create an addGraphic function to display a white marker for the origin location and a black marker for the destination.
+  // Create an addGraphic function to display a white marker for the origin location and a black marker for the destination.
   function addGraphic(type, point) {
     const graphic = new Graphic({
       symbol: {
@@ -345,11 +344,12 @@ require([
       },
       geometry: point,
     });
-    //Add the graphic to the view.
+
+    // Add the graphic to the view.
     view.graphics.add(graphic);
   }
 
-  //Create a getRoute function to add RouteParameters and pass in the point graphics.
+  // Create a getRoute function to add RouteParameters and pass in the point graphics.
   function getRoute() {
     const routeParams = new RouteParameters({
       stops: new FeatureSet({
@@ -362,13 +362,18 @@ require([
     route
       .solve(routeUrl, routeParams)
       .then((data) => {
+
+        // Responsible for displaying the route on the map
         showRoutes(data.routeResults);
+
+        // Responsible for displaying the directions associated with the route
         showDirections(data.routeResults[0].directions.features);
       })
       .catch((error) => {
         console.log(error);
       });
 
+    // For each route, it sets the symbol property to define the appearance of the route line which is blue
     function showRoutes(routes) {
       routes.forEach((result) => {
         result.route.symbol = {
@@ -380,13 +385,22 @@ require([
       });
     }
 
+    // Takes in parametes "directions" which is an array of directions
     function showDirections(directions) {
+
+      // This function generates HTML
       function showRouteDirections(directions) {
+
+        // New div element
         const directionsList = document.createElement("ol");
+
+        // Iterates over array, providing each element with it's own "number"
         directions.forEach((result, i) => {
           const direction = document.createElement("li");
           direction.innerHTML =
             result.attributes.text +
+
+            //  If the length attribute of the result object is greater than 0, it appends the length in miles to the direction text
             (result.attributes.length > 0
               ? " (" + result.attributes.length.toFixed(2) + " miles)"
               : "");
@@ -395,6 +409,7 @@ require([
         directionsElement.appendChild(directionsList);
       }
 
+      // Styling properties added to new div
       const directionsElement = document.createElement("div");
       directionsElement.innerHTML = "<h3>Directions</h3>";
       directionsElement.classList =
@@ -403,9 +418,12 @@ require([
       directionsElement.style.padding = "0 15px";
       directionsElement.style.minHeight = "365px";
 
+      // Called to populate the directionsElement with the directions
       showRouteDirections(directions);
 
       view.ui.empty("bottom-left");
+
+      // An Expand widget is created with the view as a parameter and the directionsElement as its content. It is set to be initially expanded and displayed as a floating panel
       view.ui.add(
         new Expand({
           view: view,
@@ -418,7 +436,8 @@ require([
     }
   }
 
-  view.ui.add(search, "top-right"); //Add to the map
+  // Locations of where features will be located
+  view.ui.add(search, "top-right"); 
   view.ui.add(locate, "top-left");
   view.ui.add(expand, "top-right");
 });
